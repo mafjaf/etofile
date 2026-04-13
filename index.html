@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ETOFILE – ファイル転送</title>
+  <meta name="description" content="ETOFILEはドラッグ＆ドロップで即共有できるファイル転送サービスです。登録不要、最大2GB。"/>
+  <meta property="og:title" content="ETOFILE – ファイル転送"/>
+  <meta property="og:description" content="ドラッグ＆ドロップで即共有。登録不要・最大2GB。"/>
+  <meta property="og:type" content="website"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:wght@400;600;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f0e8; --paper: #faf7f2; --ink: #1a1612; --ink2: #6b6357;
+  --border: #ddd8ce; --accent: #e85d2f; --accent2: #2f6ee8; --success: #1a9e5c;
+  --surface: #ffffff; --r: 14px;
+  --mono: 'DM Mono', monospace;
+  --display: 'Bricolage Grotesque', sans-serif;
+  --body: 'Noto Sans JP', sans-serif;
+}
+html, body { height: 100%; }
+body { font-family: var(--body); background: var(--bg); color: var(--ink); }
+.layout { display: flex; min-height: 100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 230px; flex-shrink: 0; background: var(--ink); color: var(--paper);
+  display: flex; flex-direction: column; padding: 36px 28px;
+  position: sticky; top: 0; height: 100vh;
+}
+.brand { display: flex; align-items: center; gap: 11px; margin-bottom: 36px; }
+.brand-mark {
+  width: 38px; height: 38px; background: var(--accent); border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-weight: 800; font-size: 1rem; color: #fff;
+  letter-spacing: -.02em;
+}
+.brand-name {
+  font-family: var(--display); font-weight: 800; font-size: 1.2rem;
+  letter-spacing: .1em; color: var(--paper);
+}
+.brand-tagline {
+  font-size: .8rem; color: rgba(255,255,255,.4);
+  font-family: var(--mono); margin-top: -28px; margin-bottom: 32px;
+  letter-spacing: .03em;
+}
+.brand-desc {
+  font-family: var(--display); font-weight: 800; font-size: 1.5rem;
+  line-height: 1.35; flex: 1; color: var(--paper); opacity: .88;
+}
+.sidebar-divider { height: 1px; background: rgba(255,255,255,.1); margin: 20px 0; }
+.sidebar-footer { display: flex; flex-direction: column; gap: 10px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; font-size: .75rem; }
+.stat-row span { color: rgba(255,255,255,.38); }
+.stat-row strong { font-family: var(--mono); color: var(--accent); font-size: .78rem; }
+.sidebar-note { font-size: .7rem; color: rgba(255,255,255,.25); line-height: 1.5; margin-top: 8px; }
+
+/* ── Main ── */
+.main { flex: 1; padding: 52px 60px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+.view { display: none; flex-direction: column; gap: 20px; }
+.view.active { display: flex; }
+
+/* Page title */
+.page-title { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: -.02em; }
+.page-sub { font-size: .85rem; color: var(--ink2); margin-top: -12px; }
+
+/* ── Drop zone ── */
+.drop-zone {
+  border: 2px dashed var(--border); border-radius: var(--r);
+  background: var(--surface); cursor: pointer;
+  transition: border-color .2s, background .2s, transform .15s;
+}
+.drop-zone:hover, .drop-zone.over {
+  border-color: var(--accent); background: #fffaf7;
+  transform: scale(1.004); border-style: solid;
+}
+.drop-inner {
+  padding: 64px 32px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.drop-arrow {
+  width: 68px; height: 68px; border-radius: 50%;
+  border: 2px dashed var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; color: var(--accent); margin-bottom: 8px;
+  animation: bob 2.5s ease-in-out infinite;
+}
+@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.drop-title { font-family: var(--display); font-weight: 600; font-size: 1.35rem; }
+.drop-meta { font-size: .85rem; color: var(--ink2); }
+.drop-hint { font-size: .75rem; color: var(--ink2); opacity: .6; }
+.btn-pick {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 6px;
+  padding: 12px 30px; background: var(--ink); color: var(--paper);
+  border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: .9rem;
+  cursor: pointer; border: none; transition: background .2s, transform .15s;
+}
+.btn-pick:hover { background: var(--accent); transform: translateY(-2px); }
+
+/* ── File list ── */
+.file-list { display: flex; flex-direction: column; gap: 8px; }
+.file-item {
+  display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  animation: fadeUp .2s ease;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.file-icon { font-size: 1.35rem; width: 36px; height: 36px; display:flex; align-items:center; justify-content:center; background: var(--bg); border-radius: 8px; flex-shrink:0; }
+.file-info { flex: 1; min-width: 0; }
+.file-name { font-size: .88rem; font-weight: 500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.file-size { font-family: var(--mono); font-size: .72rem; color: var(--ink2); margin-top: 2px; }
+.file-remove { background:none; border:none; color: var(--border); cursor:pointer; font-size:1rem; padding:6px; border-radius:6px; transition: color .2s, background .2s; }
+.file-remove:hover { color: var(--accent); background: rgba(232,93,47,.1); }
+
+/* ── Options bar ── */
+.options-bar {
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  padding: 16px 20px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r);
+}
+.expire-group { display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap; }
+.expire-label { font-size: .8rem; color: var(--ink2); font-weight: 500; white-space: nowrap; }
+.expire-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 999px; font-family: var(--mono); font-size: .78rem; background: none; color: var(--ink2); cursor: pointer; transition: all .15s; }
+.chip:hover { border-color: var(--ink); color: var(--ink); }
+.chip.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.btn-send {
+  display: flex; align-items: center; gap: 10px; padding: 13px 28px;
+  background: var(--accent); color: #fff; border: none; border-radius: 999px;
+  font-family: var(--display); font-weight: 600; font-size: .95rem;
+  cursor: pointer; transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 4px 20px rgba(232,93,47,.3); white-space: nowrap;
+}
+.btn-send:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,93,47,.4); }
+.btn-send:disabled { opacity:.4; cursor:not-allowed; transform:none!important; box-shadow:none; }
+
+/* ── Progress panel ── */
+.progress-panel {
+  background: var(--ink); color: var(--paper);
+  border-radius: var(--r); padding: 26px 28px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.progress-header { display: flex; align-items: center; justify-content: space-between; }
+.progress-status-row { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 600; font-size: 1rem; }
+.pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink:0; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.6);opacity:.5} }
+.progress-pct { font-family: var(--mono); font-size: 1.7rem; font-weight: 500; color: var(--accent); }
+.progress-track { height: 8px; background: rgba(255,255,255,.1); border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg,#e85d2f,#ff9a6c); border-radius: 999px; transition: width .3s ease; }
+.progress-stats { display: flex; gap: 28px; flex-wrap: wrap; }
+.progress-stat { display: flex; flex-direction: column; gap: 3px; }
+.stat-label { font-size: .67rem; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.32); font-family: var(--mono); }
+.stat-val { font-family: var(--mono); font-size: .9rem; color: rgba(255,255,255,.82); }
+.fpl { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid rgba(255,255,255,.08); padding-top: 12px; max-height: 140px; overflow-y: auto; }
+.fpl-item { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: rgba(255,255,255,.5); }
+.fpl-name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fpl-size { font-family: var(--mono); font-size: .7rem; opacity:.5; flex-shrink:0; }
+.fpl-badge { font-size: .67rem; padding: 2px 8px; border-radius: 999px; font-family: var(--mono); flex-shrink:0; }
+.fpl-badge.up { background: rgba(232,93,47,.2); color: #ff9a6c; }
+.fpl-badge.done { background: rgba(26,158,92,.2); color: #4ade80; }
+
+/* ── Result ── */
+.result-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; max-width: 500px; }
+.result-check { width: 56px; height: 56px; color: var(--success); animation: popIn .5s cubic-bezier(.34,1.56,.64,1); }
+@keyframes popIn { from{transform:scale(0) rotate(-20deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
+.result-title { font-family: var(--display); font-weight: 800; font-size: 2.4rem; line-height: 1; }
+.result-sub { font-size: .85rem; color: var(--ink2); }
+.url-card { width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r); padding: 16px 20px; }
+.url-card-label { font-family: var(--mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink2); margin-bottom: 8px; }
+.url-row { display: flex; align-items: center; gap: 10px; }
+.url-text { flex:1; font-family: var(--mono); font-size: .82rem; color: var(--accent2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.btn-copy { flex-shrink:0; padding: 8px 18px; background: var(--ink); color: var(--paper); border: none; border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: .8rem; cursor: pointer; transition: background .2s; }
+.btn-copy:hover { background: var(--accent); }
+.btn-copy.copied { background: var(--success); }
+.qr-section { display: flex; flex-direction: column; gap: 6px; }
+.qr-section canvas { border-radius: 10px; border: 1px solid var(--border); display: block; }
+.qr-label { font-size: .75rem; color: var(--ink2); }
+.btn-again { background: none; border: 1.5px solid var(--border); color: var(--ink2); padding: 10px 22px; border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: .85rem; cursor: pointer; transition: border-color .2s, color .2s; }
+.btn-again:hover { border-color: var(--ink); color: var(--ink); }
+
+/* ── Download ── */
+.dl-wrap { display: flex; flex-direction: column; gap: 20px; max-width: 540px; }
+.dl-header { display: flex; align-items: center; gap: 18px; }
+.dl-icon { font-size: 2.8rem; }
+.dl-title { font-family: var(--display); font-weight: 800; font-size: 1.7rem; }
+.dl-expire { font-size: .82rem; color: var(--ink2); margin-top: 4px; }
+.dl-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.dl-list li { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.dl-file-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dl-file-name { font-size: .88rem; font-weight: 500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dl-file-size { font-family: var(--mono); font-size: .72rem; color: var(--ink2); }
+.btn-dl { flex-shrink:0; padding: 8px 16px; background: none; border: 1.5px solid var(--accent2); color: var(--accent2); border-radius: 8px; font-family: var(--display); font-weight: 600; font-size: .78rem; cursor: pointer; transition: background .15s, color .15s; }
+.btn-dl:hover { background: var(--accent2); color: #fff; }
+.btn-dlall { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; background: var(--ink); color: var(--paper); border: none; border-radius: var(--r); font-family: var(--display); font-weight: 600; font-size: 1rem; cursor: pointer; transition: background .2s, transform .15s; }
+.btn-dlall:hover { background: var(--accent); transform: translateY(-2px); }
+
+/* ── Footer ── */
+.footer { margin-top: auto; padding-top: 40px; font-size: .72rem; color: var(--ink2); opacity: .5; font-family: var(--mono); }
+
+@media (max-width: 720px) {
+  .sidebar { display: none; }
+  .main { padding: 28px 20px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">ET</div>
+      <span class="brand-name">ETOFILE</span>
+    </div>
+    <p class="brand-tagline">file transfer service</p>
+    <p class="brand-desc">ファイルを、<br>すぐ届ける。</p>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-footer">
+      <div class="stat-row"><span>最大容量</span><strong>2 GB</strong></div>
+      <div class="stat-row"><span>ファイル数</span><strong>50件まで</strong></div>
+      <div class="stat-row"><span>アカウント</span><strong>不要</strong></div>
+      <div class="stat-row"><span>期限後</span><strong>自動削除</strong></div>
+      <p class="sidebar-note">アップロードされたファイルは保存期間終了後に自動で削除されます。</p>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- UPLOAD -->
+    <div id="view-upload" class="view active">
+      <h1 class="page-title">ファイルを送る</h1>
+      <p class="page-sub">ドラッグ＆ドロップ、またはクリックしてファイルを選択してください</p>
+
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-inner">
+          <div class="drop-arrow">↑</div>
+          <p class="drop-title">ここにドロップ</p>
+          <p class="drop-meta">または</p>
+          <button class="btn-pick" id="pickBtn">ファイルを選択する</button>
+          <input type="file" id="fileInput" multiple hidden/>
+          <p class="drop-hint">PDF・画像・動画・ZIP など対応 ／ 最大 2GB・50ファイルまで</p>
+        </div>
+      </div>
+
+      <div id="fileList" class="file-list" style="display:none"></div>
+
+      <div id="optionsBar" class="options-bar" style="display:none">
+        <div class="expire-group">
+          <span class="expire-label">保存期間</span>
+          <div class="expire-chips">
+            <button class="chip" data-val="1">1時間</button>
+            <button class="chip" data-val="6">6時間</button>
+            <button class="chip active" data-val="24">24時間</button>
+            <button class="chip" data-val="72">3日</button>
+            <button class="chip" data-val="168">7日</button>
+          </div>
+          <input type="hidden" id="expireHours" value="24"/>
+        </div>
+        <button class="btn-send" id="uploadBtn">送信する →</button>
+      </div>
+
+      <div id="progressWrap" class="progress-panel" style="display:none">
+        <div class="progress-header">
+          <div class="progress-status-row">
+            <span class="pulse-dot"></span>
+            <span id="progressStatus">アップロード中...</span>
+          </div>
+          <span id="progressPct" class="progress-pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-stats">
+          <div class="progress-stat"><span class="stat-label">転送速度</span><span class="stat-val" id="statSpeed">— MB/s</span></div>
+          <div class="progress-stat"><span class="stat-label">残り時間</span><span class="stat-val" id="statEta">計算中...</span></div>
+          <div class="progress-stat"><span class="stat-label">転送量</span><span class="stat-val" id="statLoaded">—</span></div>
+        </div>
+        <div id="fpl" class="fpl"></div>
+      </div>
+
+      <div class="footer">© ETOFILE — powered by Node.js / Express</div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="view-result" class="view">
+      <div class="result-wrap">
+        <div class="result-check">
+          <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="23" stroke="currentColor" stroke-width="1.5"/><path d="M14 24l8 8 12-14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2 class="result-title">送信完了！</h2>
+        <p class="result-sub" id="expireLabel"></p>
+        <div class="url-card">
+          <p class="url-card-label">共有リンク</p>
+          <div class="url-row">
+            <code class="url-text" id="shareUrl"></code>
+            <button class="btn-copy" id="copyBtn">コピー</button>
+          </div>
+        </div>
+        <div class="qr-section">
+          <canvas id="qrCanvas"></canvas>
+          <p class="qr-label">スマホで読み取る</p>
+        </div>
+        <button class="btn-again" id="anotherBtn">別のファイルを送る →</button>
+      </div>
+    </div>
+
+    <!-- DOWNLOAD -->
+    <div id="view-download" class="view">
+      <div class="dl-wrap">
+        <div class="dl-header">
+          <div class="dl-icon">📦</div>
+          <div>
+            <h2 id="dlTitle" class="dl-title">読み込み中...</h2>
+            <p id="dlExpire" class="dl-expire"></p>
+          </div>
+        </div>
+        <ul id="dlList" class="dl-list"></ul>
+        <button id="dlAllBtn" class="btn-dlall">↓ すべてZIPでダウンロード</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const $  = id => document.getElementById(id);
+function fmt(b){
+  if(b<1024) return b+' B';
+  if(b<1<<20) return (b/1024).toFixed(1)+' KB';
+  if(b<1<<30) return (b/(1<<20)).toFixed(1)+' MB';
+  return (b/(1<<30)).toFixed(2)+' GB';
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function ico(n){ const e=n.split('.').pop().toLowerCase(); return {pdf:'📄',jpg:'🖼',jpeg:'🖼',png:'🖼',gif:'🖼',webp:'🖼',svg:'🖼',mp4:'🎬',mov:'🎬',avi:'🎬',mkv:'🎬',mp3:'🎵',wav:'🎵',flac:'🎵',zip:'📦',rar:'📦',gz:'📦',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',js:'💻',ts:'💻',py:'💻',html:'💻',css:'💻'}[e]||'📁'; }
+
+function showView(id){
+  ['view-upload','view-result','view-download'].forEach(v=>{ const el=$(v); el.style.display='none'; el.classList.remove('active'); });
+  const t=$(id); t.style.display='flex'; t.classList.add('active');
+}
+
+// routing
+function route(){
+  const m=location.pathname.match(/^\/share\/([a-f0-9-]{36})$/);
+  if(m){ showView('view-download'); loadDL(m[1]); }
+  else showView('view-upload');
+}
+
+// expire chips
+document.querySelectorAll('.chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active'); $('expireHours').value=c.dataset.val;
+  });
+});
+
+// file picking
+let files=[];
+const dz=$('dropZone');
+$('pickBtn').addEventListener('click',()=>$('fileInput').click());
+$('fileInput').addEventListener('change',e=>{ addFiles([...(e.target.files||[])]); e.target.value=''; });
+dz.addEventListener('dragover',e=>{ e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave',e=>{ if(!dz.contains(e.relatedTarget)) dz.classList.remove('over'); });
+dz.addEventListener('drop',e=>{ e.preventDefault(); dz.classList.remove('over'); addFiles([...e.dataTransfer.files]); });
+
+function addFiles(inc){ inc.forEach(f=>{ if(!files.find(x=>x.name===f.name&&x.size===f.size)) files.push(f); }); renderFiles(); }
+
+function renderFiles(){
+  const list=$('fileList'); list.innerHTML='';
+  files.forEach((f,i)=>{
+    const d=document.createElement('div'); d.className='file-item';
+    d.innerHTML=`<div class="file-icon">${ico(f.name)}</div><div class="file-info"><div class="file-name">${esc(f.name)}</div><div class="file-size">${fmt(f.size)}</div></div><button class="file-remove" data-i="${i}">✕</button>`;
+    list.appendChild(d);
+  });
+  list.querySelectorAll('.file-remove').forEach(b=>b.addEventListener('click',()=>{ files.splice(+b.dataset.i,1); renderFiles(); }));
+  list.style.display=$('optionsBar').style.display=files.length?'flex':'none';
+}
+
+// upload
+$('uploadBtn').addEventListener('click',doUpload);
+function doUpload(){
+  if(!files.length) return;
+  $('uploadBtn').disabled=true;
+  const pw=$('progressWrap'); pw.style.display='flex';
+  $('progressFill').style.width='0%'; $('progressPct').textContent='0%';
+  $('progressStatus').textContent='アップロード中...';
+  $('statSpeed').textContent='— MB/s'; $('statEta').textContent='計算中...';
+  const tot=files.reduce((s,f)=>s+f.size,0);
+  $('statLoaded').textContent='0 B / '+fmt(tot);
+
+  const fpl=$('fpl'); fpl.innerHTML='';
+  files.forEach(f=>{ const d=document.createElement('div'); d.className='fpl-item'; d.innerHTML=`<span class="fpl-name">${esc(f.name)}</span><span class="fpl-size">${fmt(f.size)}</span><span class="fpl-badge up">送信中</span>`; fpl.appendChild(d); });
+
+  const fd=new FormData();
+  files.forEach(f=>fd.append('files',f));
+  fd.append('expireHours',$('expireHours').value);
+
+  const xhr=new XMLHttpRequest(); xhr.open('POST','/upload');
+  let lastL=0,lastT=Date.now();
+
+  xhr.upload.addEventListener('progress',e=>{
+    if(!e.lengthComputable) return;
+    const pct=Math.round(e.loaded/e.total*100);
+    $('progressFill').style.width=pct+'%'; $('progressPct').textContent=pct+'%';
+    const now=Date.now(),dt=(now-lastT)/1000;
+    if(dt>0.4){
+      const spd=(e.loaded-lastL)/dt;
+      const eta=(e.total-e.loaded)/spd;
+      $('statSpeed').textContent=spd<(1<<20)?(spd/1024).toFixed(0)+' KB/s':(spd/(1<<20)).toFixed(1)+' MB/s';
+      $('statEta').textContent=!isFinite(eta)||eta>3600?'計算中...':eta<60?'残り約'+Math.ceil(eta)+'秒':'残り約'+Math.ceil(eta/60)+'分';
+      $('statLoaded').textContent=fmt(e.loaded)+' / '+fmt(e.total);
+      lastL=e.loaded; lastT=now;
+    }
+    if(pct===100){ $('progressStatus').textContent='サーバーで処理中...'; fpl.querySelectorAll('.fpl-badge').forEach(b=>{ b.className='fpl-badge done'; b.textContent='完了'; }); }
+  });
+
+  xhr.addEventListener('load',()=>{
+    if(xhr.status===200){ showResult(JSON.parse(xhr.responseText)); }
+    else { let msg='アップロード失敗'; try{ const e=JSON.parse(xhr.responseText); if(e.error) msg=e.error; }catch(_){} alert(msg); $('uploadBtn').disabled=false; pw.style.display='none'; }
+  });
+  xhr.addEventListener('error',()=>{ alert('ネットワークエラーが発生しました'); $('uploadBtn').disabled=false; $('progressWrap').style.display='none'; });
+  xhr.send(fd);
+}
+
+function showResult({shareId,expiresAt,expireHours}){
+  showView('view-result');
+  const url=location.origin+'/share/'+shareId;
+  $('shareUrl').textContent=url;
+  $('expireLabel').textContent=expireHours+'時間後に自動削除されます';
+  history.pushState({},'','/share/'+shareId);
+  genQR(url);
+}
+$('copyBtn').addEventListener('click',()=>{
+  navigator.clipboard.writeText($('shareUrl').textContent).then(()=>{
+    $('copyBtn').textContent='コピー済み ✓'; $('copyBtn').classList.add('copied');
+    setTimeout(()=>{ $('copyBtn').textContent='コピー'; $('copyBtn').classList.remove('copied'); },2000);
+  });
+});
+$('anotherBtn').addEventListener('click',()=>{
+  files=[]; renderFiles(); $('uploadBtn').disabled=false;
+  $('progressWrap').style.display='none'; showView('view-upload');
+  history.pushState({},'','/');
+});
+
+async function loadDL(id){
+  try{
+    const res=await fetch('/share/'+id+'/info');
+    if(!res.ok) throw new Error(res.status===410?'このリンクは期限切れです':'ファイルが見つかりません');
+    const d=await res.json();
+    $('dlTitle').textContent=d.files.length+'件のファイル';
+    const rem=Math.round((d.expiresAt-Date.now())/3600000);
+    $('dlExpire').textContent='残り約'+rem+'時間で自動削除';
+    const ul=$('dlList'); ul.innerHTML='';
+    d.files.forEach(f=>{ const li=document.createElement('li'); li.innerHTML=`<div class="dl-file-info"><span class="dl-file-name">${esc(f.name)}</span><span class="dl-file-size">${fmt(f.size)}</span></div><button class="btn-dl" data-n="${encodeURIComponent(f.name)}">ダウンロード</button>`; ul.appendChild(li); });
+    ul.querySelectorAll('.btn-dl').forEach(b=>b.addEventListener('click',()=>{ location.href='/share/'+id+'/download/'+b.dataset.n; }));
+    $('dlAllBtn').onclick=()=>{ location.href='/share/'+id+'/download-all'; };
+  } catch(e){ $('dlTitle').textContent=e.message; $('dlExpire').textContent=''; $('dlAllBtn').style.display='none'; }
+}
+
+function genQR(url){
+  const c=$('qrCanvas'), s=148;
+  c.width=c.height=s;
+  const ctx=c.getContext('2d');
+  ctx.fillStyle='#f5f0e8'; ctx.fillRect(0,0,s,s);
+  ctx.fillStyle='#1a1612'; ctx.font='bold 11px monospace'; ctx.textAlign='center';
+  ctx.fillText('URLをコピーして', s/2, s/2-8);
+  ctx.fillText('共有してください', s/2, s/2+12);
+}
+
+route();
+</script>
+</body>
+</html>
