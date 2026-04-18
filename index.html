@@ -4,10 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ETOFILE – ファイル転送</title>
-  <meta name="description" content="ETOFILEはドラッグ＆ドロップで即共有できるファイル転送サービスです。登録不要、最大2GB。"/>
-  <meta property="og:title" content="ETOFILE – ファイル転送"/>
-  <meta property="og:description" content="ドラッグ＆ドロップで即共有。登録不要・最大2GB。"/>
-  <meta property="og:type" content="website"/>
+  <meta name="description" content="ETOFILEはドラッグ＆ドロップで即共有できるファイル転送サービスです。登録不要、最大50MB。"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:wght@400;600;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -24,32 +21,17 @@ html, body { height: 100%; }
 body { font-family: var(--body); background: var(--bg); color: var(--ink); }
 .layout { display: flex; min-height: 100vh; }
 
-/* ── Sidebar ── */
+/* Sidebar */
 .sidebar {
   width: 230px; flex-shrink: 0; background: var(--ink); color: var(--paper);
   display: flex; flex-direction: column; padding: 36px 28px;
   position: sticky; top: 0; height: 100vh;
 }
 .brand { display: flex; align-items: center; gap: 11px; margin-bottom: 36px; }
-.brand-mark {
-  width: 38px; height: 38px; background: var(--accent); border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--display); font-weight: 800; font-size: 1rem; color: #fff;
-  letter-spacing: -.02em;
-}
-.brand-name {
-  font-family: var(--display); font-weight: 800; font-size: 1.2rem;
-  letter-spacing: .1em; color: var(--paper);
-}
-.brand-tagline {
-  font-size: .8rem; color: rgba(255,255,255,.4);
-  font-family: var(--mono); margin-top: -28px; margin-bottom: 32px;
-  letter-spacing: .03em;
-}
-.brand-desc {
-  font-family: var(--display); font-weight: 800; font-size: 1.5rem;
-  line-height: 1.35; flex: 1; color: var(--paper); opacity: .88;
-}
+.brand-mark { width: 38px; height: 38px; background: var(--accent); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 800; font-size: 1rem; color: #fff; }
+.brand-name { font-family: var(--display); font-weight: 800; font-size: 1.2rem; letter-spacing: .1em; }
+.brand-tagline { font-size: .8rem; color: rgba(255,255,255,.4); font-family: var(--mono); margin-top: -28px; margin-bottom: 32px; }
+.brand-desc { font-family: var(--display); font-weight: 800; font-size: 1.5rem; line-height: 1.35; flex: 1; opacity: .88; }
 .sidebar-divider { height: 1px; background: rgba(255,255,255,.1); margin: 20px 0; }
 .sidebar-footer { display: flex; flex-direction: column; gap: 10px; }
 .stat-row { display: flex; justify-content: space-between; align-items: center; font-size: .75rem; }
@@ -57,55 +39,29 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
 .stat-row strong { font-family: var(--mono); color: var(--accent); font-size: .78rem; }
 .sidebar-note { font-size: .7rem; color: rgba(255,255,255,.25); line-height: 1.5; margin-top: 8px; }
 
-/* ── Main ── */
+/* Main */
 .main { flex: 1; padding: 52px 60px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
 .view { display: none; flex-direction: column; gap: 20px; }
 .view.active { display: flex; }
 
-/* Page title */
 .page-title { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: -.02em; }
 .page-sub { font-size: .85rem; color: var(--ink2); margin-top: -12px; }
 
-/* ── Drop zone ── */
-.drop-zone {
-  border: 2px dashed var(--border); border-radius: var(--r);
-  background: var(--surface); cursor: pointer;
-  transition: border-color .2s, background .2s, transform .15s;
-}
-.drop-zone:hover, .drop-zone.over {
-  border-color: var(--accent); background: #fffaf7;
-  transform: scale(1.004); border-style: solid;
-}
-.drop-inner {
-  padding: 64px 32px; text-align: center;
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-}
-.drop-arrow {
-  width: 68px; height: 68px; border-radius: 50%;
-  border: 2px dashed var(--accent);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; color: var(--accent); margin-bottom: 8px;
-  animation: bob 2.5s ease-in-out infinite;
-}
+/* Drop zone */
+.drop-zone { border: 2px dashed var(--border); border-radius: var(--r); background: var(--surface); cursor: pointer; transition: border-color .2s, background .2s, transform .15s; }
+.drop-zone:hover, .drop-zone.over { border-color: var(--accent); background: #fffaf7; transform: scale(1.004); border-style: solid; }
+.drop-inner { padding: 64px 32px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.drop-arrow { width: 68px; height: 68px; border-radius: 50%; border: 2px dashed var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent); margin-bottom: 8px; animation: bob 2.5s ease-in-out infinite; }
 @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 .drop-title { font-family: var(--display); font-weight: 600; font-size: 1.35rem; }
 .drop-meta { font-size: .85rem; color: var(--ink2); }
 .drop-hint { font-size: .75rem; color: var(--ink2); opacity: .6; }
-.btn-pick {
-  display: inline-flex; align-items: center; gap: 8px; margin-top: 6px;
-  padding: 12px 30px; background: var(--ink); color: var(--paper);
-  border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: .9rem;
-  cursor: pointer; border: none; transition: background .2s, transform .15s;
-}
+.btn-pick { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; padding: 12px 30px; background: var(--ink); color: var(--paper); border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: .9rem; cursor: pointer; border: none; transition: background .2s, transform .15s; }
 .btn-pick:hover { background: var(--accent); transform: translateY(-2px); }
 
-/* ── File list ── */
+/* File list */
 .file-list { display: flex; flex-direction: column; gap: 8px; }
-.file-item {
-  display: flex; align-items: center; gap: 14px; padding: 12px 16px;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-  animation: fadeUp .2s ease;
-}
+.file-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; animation: fadeUp .2s ease; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 .file-icon { font-size: 1.35rem; width: 36px; height: 36px; display:flex; align-items:center; justify-content:center; background: var(--bg); border-radius: 8px; flex-shrink:0; }
 .file-info { flex: 1; min-width: 0; }
@@ -114,34 +70,20 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
 .file-remove { background:none; border:none; color: var(--border); cursor:pointer; font-size:1rem; padding:6px; border-radius:6px; transition: color .2s, background .2s; }
 .file-remove:hover { color: var(--accent); background: rgba(232,93,47,.1); }
 
-/* ── Options bar ── */
-.options-bar {
-  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
-  padding: 16px 20px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: var(--r);
-}
+/* Options */
+.options-bar { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); }
 .expire-group { display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap; }
 .expire-label { font-size: .8rem; color: var(--ink2); font-weight: 500; white-space: nowrap; }
 .expire-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .chip { padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 999px; font-family: var(--mono); font-size: .78rem; background: none; color: var(--ink2); cursor: pointer; transition: all .15s; }
 .chip:hover { border-color: var(--ink); color: var(--ink); }
 .chip.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-.btn-send {
-  display: flex; align-items: center; gap: 10px; padding: 13px 28px;
-  background: var(--accent); color: #fff; border: none; border-radius: 999px;
-  font-family: var(--display); font-weight: 600; font-size: .95rem;
-  cursor: pointer; transition: transform .15s, box-shadow .15s;
-  box-shadow: 0 4px 20px rgba(232,93,47,.3); white-space: nowrap;
-}
+.btn-send { display: flex; align-items: center; gap: 10px; padding: 13px 28px; background: var(--accent); color: #fff; border: none; border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: .95rem; cursor: pointer; transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 20px rgba(232,93,47,.3); white-space: nowrap; }
 .btn-send:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,93,47,.4); }
 .btn-send:disabled { opacity:.4; cursor:not-allowed; transform:none!important; box-shadow:none; }
 
-/* ── Progress panel ── */
-.progress-panel {
-  background: var(--ink); color: var(--paper);
-  border-radius: var(--r); padding: 26px 28px;
-  display: flex; flex-direction: column; gap: 16px;
-}
+/* Progress */
+.progress-panel { background: var(--ink); color: var(--paper); border-radius: var(--r); padding: 26px 28px; display: flex; flex-direction: column; gap: 16px; }
 .progress-header { display: flex; align-items: center; justify-content: space-between; }
 .progress-status-row { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 600; font-size: 1rem; }
 .pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink:0; animation: pulse 1.2s ease-in-out infinite; }
@@ -161,7 +103,7 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
 .fpl-badge.up { background: rgba(232,93,47,.2); color: #ff9a6c; }
 .fpl-badge.done { background: rgba(26,158,92,.2); color: #4ade80; }
 
-/* ── Result ── */
+/* Result */
 .result-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; max-width: 500px; }
 .result-check { width: 56px; height: 56px; color: var(--success); animation: popIn .5s cubic-bezier(.34,1.56,.64,1); }
 @keyframes popIn { from{transform:scale(0) rotate(-20deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
@@ -174,13 +116,10 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
 .btn-copy { flex-shrink:0; padding: 8px 18px; background: var(--ink); color: var(--paper); border: none; border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: .8rem; cursor: pointer; transition: background .2s; }
 .btn-copy:hover { background: var(--accent); }
 .btn-copy.copied { background: var(--success); }
-.qr-section { display: flex; flex-direction: column; gap: 6px; }
-.qr-section canvas { border-radius: 10px; border: 1px solid var(--border); display: block; }
-.qr-label { font-size: .75rem; color: var(--ink2); }
 .btn-again { background: none; border: 1.5px solid var(--border); color: var(--ink2); padding: 10px 22px; border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: .85rem; cursor: pointer; transition: border-color .2s, color .2s; }
 .btn-again:hover { border-color: var(--ink); color: var(--ink); }
 
-/* ── Download ── */
+/* Download */
 .dl-wrap { display: flex; flex-direction: column; gap: 20px; max-width: 540px; }
 .dl-header { display: flex; align-items: center; gap: 18px; }
 .dl-icon { font-size: 2.8rem; }
@@ -193,10 +132,7 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
 .dl-file-size { font-family: var(--mono); font-size: .72rem; color: var(--ink2); }
 .btn-dl { flex-shrink:0; padding: 8px 16px; background: none; border: 1.5px solid var(--accent2); color: var(--accent2); border-radius: 8px; font-family: var(--display); font-weight: 600; font-size: .78rem; cursor: pointer; transition: background .15s, color .15s; }
 .btn-dl:hover { background: var(--accent2); color: #fff; }
-.btn-dlall { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; background: var(--ink); color: var(--paper); border: none; border-radius: var(--r); font-family: var(--display); font-weight: 600; font-size: 1rem; cursor: pointer; transition: background .2s, transform .15s; }
-.btn-dlall:hover { background: var(--accent); transform: translateY(-2px); }
 
-/* ── Footer ── */
 .footer { margin-top: auto; padding-top: 40px; font-size: .72rem; color: var(--ink2); opacity: .5; font-family: var(--mono); }
 
 @media (max-width: 720px) {
@@ -207,8 +143,6 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
 </head>
 <body>
 <div class="layout">
-
-  <!-- ── Sidebar ── -->
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-mark">ET</div>
@@ -218,21 +152,19 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
     <p class="brand-desc">ファイルを、<br>すぐ届ける。</p>
     <div class="sidebar-divider"></div>
     <div class="sidebar-footer">
-      <div class="stat-row"><span>最大容量</span><strong>2 GB</strong></div>
-      <div class="stat-row"><span>ファイル数</span><strong>50件まで</strong></div>
+      <div class="stat-row"><span>最大容量</span><strong>50 MB</strong></div>
+      <div class="stat-row"><span>ファイル数</span><strong>10件まで</strong></div>
       <div class="stat-row"><span>アカウント</span><strong>不要</strong></div>
-      <div class="stat-row"><span>期限後</span><strong>自動削除</strong></div>
-      <p class="sidebar-note">アップロードされたファイルは保存期間終了後に自動で削除されます。</p>
+      <div class="stat-row"><span>保存</span><strong>永続</strong></div>
+      <p class="sidebar-note">Supabase Storageを使用。東京リージョンで高速転送。</p>
     </div>
   </aside>
 
-  <!-- ── Main ── -->
   <main class="main">
-
     <!-- UPLOAD -->
     <div id="view-upload" class="view active">
       <h1 class="page-title">ファイルを送る</h1>
-      <p class="page-sub">ドラッグ＆ドロップ、またはクリックしてファイルを選択してください</p>
+      <p class="page-sub">ドラッグ＆ドロップ、またはクリックしてファイルを選択</p>
 
       <div class="drop-zone" id="dropZone">
         <div class="drop-inner">
@@ -241,7 +173,7 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
           <p class="drop-meta">または</p>
           <button class="btn-pick" id="pickBtn">ファイルを選択する</button>
           <input type="file" id="fileInput" multiple hidden/>
-          <p class="drop-hint">PDF・画像・動画・ZIP など対応 ／ 最大 2GB・50ファイルまで</p>
+          <p class="drop-hint">最大 50MB・10ファイルまで</p>
         </div>
       </div>
 
@@ -270,18 +202,16 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
           </div>
           <span id="progressPct" class="progress-pct">0%</span>
         </div>
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
         <div class="progress-stats">
-          <div class="progress-stat"><span class="stat-label">転送速度</span><span class="stat-val" id="statSpeed">— MB/s</span></div>
+          <div class="progress-stat"><span class="stat-label">転送速度</span><span class="stat-val" id="statSpeed">—</span></div>
           <div class="progress-stat"><span class="stat-label">残り時間</span><span class="stat-val" id="statEta">計算中...</span></div>
           <div class="progress-stat"><span class="stat-label">転送量</span><span class="stat-val" id="statLoaded">—</span></div>
         </div>
         <div id="fpl" class="fpl"></div>
       </div>
 
-      <div class="footer">© ETOFILE — powered by Node.js / Express</div>
+      <div class="footer">© ETOFILE — powered by Supabase Storage / Tokyo</div>
     </div>
 
     <!-- RESULT -->
@@ -299,10 +229,6 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
             <button class="btn-copy" id="copyBtn">コピー</button>
           </div>
         </div>
-        <div class="qr-section">
-          <canvas id="qrCanvas"></canvas>
-          <p class="qr-label">スマホで読み取る</p>
-        </div>
         <button class="btn-again" id="anotherBtn">別のファイルを送る →</button>
       </div>
     </div>
@@ -318,35 +244,87 @@ body { font-family: var(--body); background: var(--bg); color: var(--ink); }
           </div>
         </div>
         <ul id="dlList" class="dl-list"></ul>
-        <button id="dlAllBtn" class="btn-dlall">↓ すべてZIPでダウンロード</button>
       </div>
     </div>
-
   </main>
 </div>
 
 <script>
+// ══════════════════════════════════════════════════════
+// ⚠️  ここにSupabaseの情報を入れる
+// ══════════════════════════════════════════════════════
+const SUPABASE_URL    = 'https://ldfkmqiafyotphvjyzed.supabase.co';
+const SUPABASE_ANON   = 'sb_publishable_3SovqcOQRbDu5NvRj5pdHw_WAT4vTIW'; // ← あとで差し替え
+const BUCKET          = 'file';
+// ══════════════════════════════════════════════════════
+
 const $  = id => document.getElementById(id);
-function fmt(b){
-  if(b<1024) return b+' B';
-  if(b<1<<20) return (b/1024).toFixed(1)+' KB';
-  if(b<1<<30) return (b/(1<<20)).toFixed(1)+' MB';
-  return (b/(1<<30)).toFixed(2)+' GB';
-}
+function fmt(b){ if(b<1024) return b+' B'; if(b<1<<20) return (b/1024).toFixed(1)+' KB'; if(b<1<<30) return (b/(1<<20)).toFixed(1)+' MB'; return (b/(1<<30)).toFixed(2)+' GB'; }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function ico(n){ const e=n.split('.').pop().toLowerCase(); return {pdf:'📄',jpg:'🖼',jpeg:'🖼',png:'🖼',gif:'🖼',webp:'🖼',svg:'🖼',mp4:'🎬',mov:'🎬',avi:'🎬',mkv:'🎬',mp3:'🎵',wav:'🎵',flac:'🎵',zip:'📦',rar:'📦',gz:'📦',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',js:'💻',ts:'💻',py:'💻',html:'💻',css:'💻'}[e]||'📁'; }
+function ico(n){ const e=n.split('.').pop().toLowerCase(); return {pdf:'📄',jpg:'🖼',jpeg:'🖼',png:'🖼',gif:'🖼',webp:'🖼',mp4:'🎬',mov:'🎬',mp3:'🎵',wav:'🎵',zip:'📦',rar:'📦',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',js:'💻',py:'💻'}[e]||'📁'; }
 
 function showView(id){
   ['view-upload','view-result','view-download'].forEach(v=>{ const el=$(v); el.style.display='none'; el.classList.remove('active'); });
   const t=$(id); t.style.display='flex'; t.classList.add('active');
 }
 
+// ── Supabase Storage REST API ─────────────────────────
+const headers = { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON };
+
+async function uploadFile(shareId, file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const path = shareId + '/' + file.name;
+    const url  = SUPABASE_URL + '/storage/v1/object/' + BUCKET + '/' + encodeURIComponent(path);
+    const xhr  = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.setRequestHeader('apikey', SUPABASE_ANON);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + SUPABASE_ANON);
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+    xhr.setRequestHeader('x-upsert', 'true');
+    xhr.upload.onprogress = e => { if(e.lengthComputable) onProgress(e.loaded, e.total); };
+    xhr.onload = () => {
+      if(xhr.status >= 200 && xhr.status < 300) resolve(path);
+      else reject(new Error('Upload failed: ' + xhr.status + ' ' + xhr.responseText));
+    };
+    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.send(file);
+  });
+}
+
+async function saveMetadata(shareId, files, expireHours) {
+  const meta = { shareId, files: files.map(f=>({name:f.name,size:f.size})), expireHours, createdAt: Date.now() };
+  const path = shareId + '/__meta__.json';
+  const url  = SUPABASE_URL + '/storage/v1/object/' + BUCKET + '/' + encodeURIComponent(path);
+  const res  = await fetch(url, {
+    method: 'POST',
+    headers: { ...headers, 'Content-Type': 'application/json', 'x-upsert': 'true' },
+    body: JSON.stringify(meta)
+  });
+  if(!res.ok) throw new Error('Metadata save failed');
+}
+
+async function loadMetadata(shareId) {
+  const path = shareId + '/__meta__.json';
+  const url  = SUPABASE_URL + '/storage/v1/object/public/' + BUCKET + '/' + encodeURIComponent(path);
+  const res  = await fetch(url);
+  if(!res.ok) throw new Error('Not found');
+  return res.json();
+}
+
+function getPublicUrl(shareId, filename) {
+  const path = shareId + '/' + filename;
+  return SUPABASE_URL + '/storage/v1/object/public/' + BUCKET + '/' + encodeURIComponent(path);
+}
+
+// ── Routing ───────────────────────────────────────────
 function route(){
-  const m=location.pathname.match(/^\/share\/([a-f0-9-]{36})$/);
+  const m = location.hash.match(/^#share\/([a-f0-9-]{36})$/);
   if(m){ showView('view-download'); loadDL(m[1]); }
   else showView('view-upload');
 }
+window.addEventListener('hashchange', route);
 
+// ── Chips ─────────────────────────────────────────────
 document.querySelectorAll('.chip').forEach(c=>{
   c.addEventListener('click',()=>{
     document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
@@ -354,6 +332,7 @@ document.querySelectorAll('.chip').forEach(c=>{
   });
 });
 
+// ── File picking ──────────────────────────────────────
 let files=[];
 const dz=$('dropZone');
 $('pickBtn').addEventListener('click',()=>$('fileInput').click());
@@ -362,7 +341,13 @@ dz.addEventListener('dragover',e=>{ e.preventDefault(); dz.classList.add('over')
 dz.addEventListener('dragleave',e=>{ if(!dz.contains(e.relatedTarget)) dz.classList.remove('over'); });
 dz.addEventListener('drop',e=>{ e.preventDefault(); dz.classList.remove('over'); addFiles([...e.dataTransfer.files]); });
 
-function addFiles(inc){ inc.forEach(f=>{ if(!files.find(x=>x.name===f.name&&x.size===f.size)) files.push(f); }); renderFiles(); }
+function addFiles(inc){
+  inc.forEach(f=>{
+    if(f.size > 50*1024*1024){ alert(f.name+' は50MBを超えています'); return; }
+    if(!files.find(x=>x.name===f.name&&x.size===f.size)) files.push(f);
+  });
+  renderFiles();
+}
 
 function renderFiles(){
   const list=$('fileList'); list.innerHTML='';
@@ -375,67 +360,80 @@ function renderFiles(){
   list.style.display=$('optionsBar').style.display=files.length?'flex':'none';
 }
 
+// ── Upload ────────────────────────────────────────────
 $('uploadBtn').addEventListener('click', doUpload);
 
-function doUpload(){
+async function doUpload(){
   if(!files.length) return;
+  if(SUPABASE_ANON === 'YOUR_ANON_KEY_HERE'){
+    alert('Supabaseのanon keyを設定してください！\nindex.htmlの SUPABASE_ANON を書き換えてください。');
+    return;
+  }
   $('uploadBtn').disabled=true;
   const pw=$('progressWrap'); pw.style.display='flex';
   $('progressFill').style.width='0%'; $('progressPct').textContent='0%';
   $('progressStatus').textContent='アップロード中...';
-  $('statSpeed').textContent='— MB/s'; $('statEta').textContent='計算中...';
-  const tot=files.reduce((s,f)=>s+f.size,0);
-  $('statLoaded').textContent='0 B / '+fmt(tot);
+
+  const totalBytes = files.reduce((s,f)=>s+f.size,0);
+  $('statLoaded').textContent='0 B / '+fmt(totalBytes);
 
   const fpl=$('fpl'); fpl.innerHTML='';
+  const badges={};
   files.forEach(f=>{
     const d=document.createElement('div'); d.className='fpl-item';
-    d.innerHTML='<span class="fpl-name">'+esc(f.name)+'</span><span class="fpl-size">'+fmt(f.size)+'</span><span class="fpl-badge up">送信中</span>';
+    d.innerHTML='<span class="fpl-name">'+esc(f.name)+'</span><span class="fpl-size">'+fmt(f.size)+'</span><span class="fpl-badge up">待機中</span>';
+    badges[f.name]=d.querySelector('.fpl-badge');
     fpl.appendChild(d);
   });
 
-  const fd=new FormData();
-  files.forEach(f=>fd.append('files',f));
-  fd.append('expireHours',$('expireHours').value);
+  const shareId = crypto.randomUUID();
+  let sentBytes=0, lastBytes=0, lastTime=Date.now();
 
-  const xhr=new XMLHttpRequest();
-  xhr.open('POST','/upload');
-
-  let lastL=0, lastT=Date.now();
-
-  xhr.upload.addEventListener('progress',e=>{
-    if(!e.lengthComputable) return;
-    const pct=Math.round(e.loaded/e.total*100);
-    $('progressFill').style.width=pct+'%';
-    $('progressPct').textContent=pct+'%';
-    const now=Date.now(), dt=(now-lastT)/1000;
+  const updateProgress = (loaded, fileTotal, filename) => {
+    const delta = loaded - (updateProgress._prev||0);
+    updateProgress._prev = loaded;
+    if(loaded >= fileTotal) updateProgress._prev = 0;
+    sentBytes = Math.min(sentBytes + Math.max(delta,0), totalBytes);
+    const now=Date.now(), dt=(now-lastTime)/1000;
+    const pct=Math.min(99,Math.round(sentBytes/totalBytes*100));
+    $('progressFill').style.width=pct+'%'; $('progressPct').textContent=pct+'%';
     if(dt>0.3){
-      const spd=(e.loaded-lastL)/dt;
-      const eta=(e.total-e.loaded)/spd;
+      const spd=(sentBytes-lastBytes)/dt;
+      const eta=(totalBytes-sentBytes)/spd;
       $('statSpeed').textContent=spd<(1<<20)?(spd/1024).toFixed(0)+' KB/s':(spd/(1<<20)).toFixed(1)+' MB/s';
       $('statEta').textContent=!isFinite(eta)||eta>3600?'計算中...':eta<60?'残り約'+Math.ceil(eta)+'秒':'残り約'+Math.ceil(eta/60)+'分';
-      $('statLoaded').textContent=fmt(e.loaded)+' / '+fmt(e.total);
-      lastL=e.loaded; lastT=now;
+      $('statLoaded').textContent=fmt(sentBytes)+' / '+fmt(totalBytes);
+      lastBytes=sentBytes; lastTime=now;
     }
-    if(pct===100){ $('progressStatus').textContent='サーバーで処理中...'; fpl.querySelectorAll('.fpl-badge').forEach(b=>{ b.className='fpl-badge done'; b.textContent='完了'; }); }
-  });
+  };
 
-  xhr.addEventListener('load',()=>{
-    if(xhr.status===200){ showResult(JSON.parse(xhr.responseText)); }
-    else{ let msg='アップロード失敗'; try{ const e=JSON.parse(xhr.responseText); if(e.error) msg=e.error; }catch(_){} alert(msg); $('uploadBtn').disabled=false; pw.style.display='none'; }
-  });
-  xhr.addEventListener('error',()=>{ alert('ネットワークエラーが発生しました'); $('uploadBtn').disabled=false; $('progressWrap').style.display='none'; });
-  xhr.send(fd);
+  try {
+    for(const file of files){
+      if(badges[file.name]) { badges[file.name].className='fpl-badge up'; badges[file.name].textContent='送信中'; }
+      updateProgress._prev=0;
+      await uploadFile(shareId, file, (loaded,total)=>updateProgress(loaded,total,file.name));
+      if(badges[file.name]) { badges[file.name].className='fpl-badge done'; badges[file.name].textContent='完了'; }
+    }
+
+    $('progressStatus').textContent='完了処理中...';
+    await saveMetadata(shareId, files, parseInt($('expireHours').value));
+
+    $('progressFill').style.width='100%'; $('progressPct').textContent='100%';
+
+    // 結果表示
+    showView('view-result');
+    const shareUrl = location.origin + location.pathname + '#share/' + shareId;
+    $('shareUrl').textContent = shareUrl;
+    $('expireLabel').textContent = $('expireHours').value + '時間後に自動削除されます（※要別途設定）';
+    history.pushState({}, '', '#share/' + shareId);
+
+  } catch(e){
+    alert('エラー: ' + e.message);
+    $('uploadBtn').disabled=false;
+    pw.style.display='none';
+  }
 }
 
-function showResult({shareId,expiresAt,expireHours}){
-  showView('view-result');
-  const url=location.origin+'/share/'+shareId;
-  $('shareUrl').textContent=url;
-  $('expireLabel').textContent=expireHours+'時間後に自動削除されます';
-  history.pushState({},'','/share/'+shareId);
-  genQR(url);
-}
 $('copyBtn').addEventListener('click',()=>{
   navigator.clipboard.writeText($('shareUrl').textContent).then(()=>{
     $('copyBtn').textContent='コピー済み ✓'; $('copyBtn').classList.add('copied');
@@ -445,36 +443,31 @@ $('copyBtn').addEventListener('click',()=>{
 $('anotherBtn').addEventListener('click',()=>{
   files=[]; renderFiles(); $('uploadBtn').disabled=false;
   $('progressWrap').style.display='none'; showView('view-upload');
-  history.pushState({},'','/');
+  history.pushState({},'','#');
 });
 
-async function loadDL(id){
+// ── Download ──────────────────────────────────────────
+async function loadDL(shareId){
   try{
-    const res=await fetch('/share/'+id+'/info');
-    if(!res.ok) throw new Error(res.status===410?'このリンクは期限切れです':'ファイルが見つかりません');
-    const d=await res.json();
-    $('dlTitle').textContent=d.files.length+'件のファイル';
-    const rem=Math.round((d.expiresAt-Date.now())/3600000);
-    $('dlExpire').textContent='残り約'+rem+'時間で自動削除';
+    const meta = await loadMetadata(shareId);
+    $('dlTitle').textContent = meta.files.length+'件のファイル';
+    const expireAt = meta.createdAt + meta.expireHours*3600000;
+    const rem = Math.max(0, Math.round((expireAt-Date.now())/3600000));
+    $('dlExpire').textContent = rem>0 ? '残り約'+rem+'時間' : '期限切れの可能性あり';
     const ul=$('dlList'); ul.innerHTML='';
-    d.files.forEach(f=>{ const li=document.createElement('li'); li.innerHTML='<div class="dl-file-info"><span class="dl-file-name">'+esc(f.name)+'</span><span class="dl-file-size">'+fmt(f.size)+'</span></div><button class="btn-dl" data-n="'+encodeURIComponent(f.name)+'">ダウンロード</button>'; ul.appendChild(li); });
-    ul.querySelectorAll('.btn-dl').forEach(b=>b.addEventListener('click',()=>{ location.href='/share/'+id+'/download/'+b.dataset.n; }));
-    $('dlAllBtn').onclick=()=>{ location.href='/share/'+id+'/download-all'; };
-  } catch(e){ $('dlTitle').textContent=e.message; $('dlExpire').textContent=''; $('dlAllBtn').style.display='none'; }
-}
-
-function genQR(url){
-  const c=$('qrCanvas'), s=148;
-  c.width=c.height=s;
-  const ctx=c.getContext('2d');
-  ctx.fillStyle='#f5f0e8'; ctx.fillRect(0,0,s,s);
-  ctx.fillStyle='#1a1612'; ctx.font='bold 11px monospace'; ctx.textAlign='center';
-  ctx.fillText('URLをコピーして', s/2, s/2-8);
-  ctx.fillText('共有してください', s/2, s/2+12);
+    meta.files.forEach(f=>{
+      const li=document.createElement('li');
+      const dlUrl=getPublicUrl(shareId, f.name);
+      li.innerHTML='<div class="dl-file-info"><span class="dl-file-name">'+esc(f.name)+'</span><span class="dl-file-size">'+fmt(f.size)+'</span></div><a class="btn-dl" href="'+dlUrl+'" download="'+esc(f.name)+'">ダウンロード</a>';
+      ul.appendChild(li);
+    });
+  } catch(e){
+    $('dlTitle').textContent='ファイルが見つかりません';
+    $('dlExpire').textContent='期限切れか無効なリンクです';
+  }
 }
 
 route();
-
 </script>
 </body>
 </html>
